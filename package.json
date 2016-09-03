@@ -1,0 +1,28 @@
+{
+  "name": "web-rtc-book",
+  "version": "1.0.0",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "concurrently 'nodemon server/server.js' 'npm run watch'",
+    "watch": "gulp"
+  },
+  "dependencies": {
+    "body-parser": "^1.9.0",
+    "compression": "^1.0.11",
+    "express": "^4.14.0",
+    "jade": "^1.7.0",
+    "serve-favicon": "^2.0.1",
+    "ws": "^1.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IRog/webRTC"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^2.2.0",
+    "gulp": "^3.9.0",
+    "gulp-livereload": "^3.8.1",
+    "nodemon": "^1.10.2"
+  }
+}

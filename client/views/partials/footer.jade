@@ -1,0 +1,10 @@
+//- Load Scripts
+script(src='//cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js')
+if heroku
+  script(src='../../dist/main-min.js')
+else
+  script(src='../../vendor/MTLLoader.js')
+  script(src='../../vendor/OBJMTLLoader.js')
+  script(src='../../vendor/TrackballControls.js')
+  script(src='../../vendor/Detector.js')
+  script(src='../../js/main.js')
