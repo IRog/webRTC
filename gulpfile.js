@@ -4,7 +4,7 @@ const babel = require('gulp-babel')
 const closureCompiler = require('google-closure-compiler').gulp()
  
 gulp.task('js-compile', function () {
-  return gulp.src('./client/js/**/*.js', {base: './'})
+  return gulp.src('./dist/js/**/*.js', {base: './'})
     .pipe(closureCompiler({
       compilation_level: 'SIMPLE',
       language_in: 'ECMASCRIPT6',
@@ -12,15 +12,19 @@ gulp.task('js-compile', function () {
       output_wrapper: '(function(){\n%output%\n}).call(this)',
       js_output_file: 'build.min.js'
     }))
-    .pipe(gulp.dest('./dist/js'))
+    .pipe(gulp.dest('./dist/build/js'))
 })
 
 gulp.task('babel', () =>
-  gulp.src('./dist/js/build.min.js')
-    .pipe(babel({
-      presets: ['es2015']
-    }))
-    .pipe(gulp.dest('/dist/js'))
+  gulp.src('./client/js/**/*.js')
+  .pipe(babel({
+    presets: ['es2015'],
+    "plugins": [
+      "transform-object-rest-spread",
+      "transform-class-properties"
+    ]
+  }))
+  .pipe(gulp.dest('./dist/js'))
 )
 
 gulp.task('reload-js', input => {
@@ -33,7 +37,7 @@ gulp.task('reload-pug', input => {
 
 gulp.task('watch', () => {
   livereload.listen()
-  gulp.watch('./client/js/*.js', ['js-compile', 'reload-js'])
+  gulp.watch('./client/js/*.js', ['reload-js'])
   gulp.watch('./client/views/pages/*.pug', ['reload-pug'])
 })
 
