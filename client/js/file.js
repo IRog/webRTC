@@ -1,3 +1,5 @@
+//TODO: show file name and correct % on the reciever. Name the file properly on download
+
 var name,
 connectedUser;
 

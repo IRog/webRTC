@@ -1,13 +1,18 @@
-var gulp = require('gulp');
-var livereload = require('gulp-livereload');
+const gulp = require('gulp')
+const livereload = require('gulp-livereload')
 
-gulp.task('reload', function() {
- return gulp.src('./client/js/*.js').pipe(livereload());
-});
+gulp.task('reloadJs', input => {
+ return gulp.src('./client/js/*.js').pipe(livereload())
+})
 
-gulp.task('watch', function() {
-  livereload.listen();
-  gulp.watch('./client/js/*.js', ['reload']);
-});
+gulp.task('reloadPug', input => {
+ return gulp.src('./client/views/pages/*.pug').pipe(livereload())
+})
 
-gulp.task('default', ['watch'], function() {});
+gulp.task('watch', () => {
+  livereload.listen()
+  gulp.watch('./client/js/*.js', ['reloadJs'])
+  gulp.watch('./client/views/pages/*.pug', ['reloadPug'])
+})
+
+gulp.task('default', ['watch'], () => {})
