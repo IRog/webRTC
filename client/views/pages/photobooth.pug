@@ -2,12 +2,25 @@ doctype html
 html(lang='en')
   head
     meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', rel='stylesheet')
     title Learning WebRTC - Chapter 2: Get User Media
     style.
+      body {
+        background-color: #404040;
+      }
       video, canvas {
         border: 1px solid gray;
         width: 480px;
         height: 320px;
+      }
+      #capture {
+        border-radius: 50px;
+      }
+      #capture:hover {
+        background-color: black;
+        color: white;
       }
       .grayscale {
         -webkit-filter: grayscale(1);
@@ -30,8 +43,14 @@ html(lang='en')
         -o-filter: invert(1);
         filter: invert(1);
       }
+      .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
   body
-    video(autoplay='')
-    canvas
-    button#capture Capture
+    .center
+      video(autoplay='')
+      canvas
+      button#capture.btn Capture
     script(src='../../js/photobooth.js')

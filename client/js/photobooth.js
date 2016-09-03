@@ -1,44 +1,48 @@
 function hasUserMedia() {
-  return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+  return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia)
 }
+
+let streaming = false
+let video = document.querySelector('video')
+let canvas = document.querySelector('canvas')
+
 if (hasUserMedia()) {
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-  var video = document.querySelector('video'),
-      canvas = document.querySelector('canvas'),
-      streaming = false;
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
+
   navigator.getUserMedia({
     video: true,
     audio: false
-  }, function (stream) {
-    video.src = window.URL.createObjectURL(stream);
-    streaming = true;
-  }, function (error) {
-    console.log("Raised an error when capturing:", error);
-  });
-  document.querySelector('#capture').addEventListener('click', function (event) {
+  }, stream => {
+    video.src = window.URL.createObjectURL(stream)
+    streaming = true
+  }, error => {
+    console.log("Raised an error when capturing:", error)
+  })
+  document.querySelector('#capture').addEventListener('click', event => {
     if (streaming) {
-      canvas.width = video.clientWidth;
-      canvas.height = video.clientHeight;
-      var context = canvas.getContext('2d');
-      context.drawImage(video, 0, 0);
+      canvas.width = video.clientWidth
+      canvas.height = video.clientHeight
+      let context = canvas.getContext('2d')
+      context.drawImage(video, 0, 0)
     }
-  });
+  })
 } else {
-  alert("Sorry, your browser does not support getUserMedia.");
+  alert("Sorry, your browser does not support getUserMedia.")
 }
 
-var filters = ['', 'grayscale', 'sepia', 'invert'],
-      currentFilter = 0;
-  document.querySelector('video').addEventListener('click', function (event) {
-    if (streaming) {
-      canvas.width = video.clientWidth;
-      canvas.height = video.clientHeight;
+const filters = ['', 'grayscale', 'sepia', 'invert']
+let currentFilter = 0
 
-      var context = canvas.getContext('2d');
-      context.drawImage(video, 0, 0);
+document.querySelector('canvas').addEventListener('click', event => {
+  if (streaming) {
+    canvas.width = video.clientWidth
+    canvas.height = video.clientHeight
 
-      currentFilter++;
-      if(currentFilter > filters.length - 1) currentFilter = 0;
-      canvas.className = filters[currentFilter];
-    }
-  });
+    let context = canvas.getContext('2d')
+    context.drawImage(video, 0, 0)
+
+    currentFilter++
+    if(currentFilter > filters.length - 1) currentFilter = 0
+    canvas.className = filters[currentFilter]
+  }
+})
