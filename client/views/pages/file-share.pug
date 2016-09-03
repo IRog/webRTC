@@ -1,0 +1,98 @@
+//- doctype html
+//- html(lang='en')
+//-   head
+//-     meta(charset='utf-8')
+//-     title Learning WebRTC - Chapter 2: Get User Media
+//-   body
+//-     video(autoplay='')
+//-     script(src='../../js/main.js')
+
+
+//- doctype html
+//- html(lang='en')
+//-   head
+//-     meta(charset='utf-8')
+//-     title Learning WebRTC - Chapter 2: Get User Media
+//-     style.
+//-       video, canvas {
+//-         border: 1px solid gray;
+//-         width: 480px;
+//-         height: 320px;
+//-       }
+//-       .grayscale {
+//-         -webkit-filter: grayscale(1);
+//-         -moz-filter: grayscale(1);
+//-         -ms-filter: grayscale(1);
+//-         -o-filter: grayscale(1);
+//-         filter: grayscale(1);
+//-       }
+//-       .sepia {
+//-         -webkit-filter: sepia(1);
+//-         -moz-filter: sepia(1);
+//-         -ms-filter: sepia(1);
+//-         -o-filter: sepia(1);
+//-         filter: sepia(1);
+//-       }
+//-       .invert {
+//-         -webkit-filter: invert(1);
+//-         -moz-filter: invert(1);
+//-         -ms-filter: invert(1);
+//-         -o-filter: invert(1);
+//-         filter: invert(1);
+//-       }
+//-   body
+//-     video(autoplay='')
+//-     canvas
+//-     button#capture Capture
+//-     script(src='../../js/photobooth.js')
+
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title Learning WebRTC - Chapter 7: File Sharing
+    style.
+      body {
+        background-color: #404040;
+        margin-top: 15px;
+        font-family: sans-serif;
+        color: white;
+      }
+      .thumb {
+        height: 75px;
+        border: 1px solid #000;
+        margin: 10px 5px 0 0;
+      }
+      .page {
+        position: relative;
+        display: block;
+        margin: 0 auto;
+        width: 500px;
+        height: 500px;
+      }
+      #byte_content {
+        margin: 5px 0;
+        max-height: 100px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+      #byte_range {
+        margin-top: 5px;
+      }
+  body
+    #login-page.page
+      h2 Login As
+      input#username(type='text')
+      button#login Login
+    #share-page.page
+      h2 File Sharing
+      input#their-username(type='text')
+      button#connect Connect
+      #ready Ready!
+      br
+      br
+      input#files(type='file', name='file')
+      |  Read bytes:
+      #status
+      button#send Send
+    script(src='../../js/file.js')

@@ -9,7 +9,7 @@ const compression = require('compression')
 // Setup the view engine (jade)
 const path = require('path')
 app.set('views', path.join(__dirname, '../client/views'))
-app.set('view engine', 'jade')
+app.set('view engine', 'pug');
 
 // to support JSON-encoded bodies
 app.use(bodyParser.json())
@@ -29,6 +29,24 @@ app.use(compression())
 
 app.get('/', (req, res, next) => {
   res.render('pages/index', {
+    heroku: process.env.HEROKU
+  })
+})
+
+app.get('/file-share', (req, res, next) => {
+  res.render('pages/file-share', {
+    heroku: process.env.HEROKU
+  })
+})
+
+app.get('/photobooth', (req, res, next) => {
+  res.render('pages/photobooth', {
+    heroku: process.env.HEROKU
+  })
+})
+
+app.get('/video-chat', (req, res, next) => {
+  res.render('pages/video-chat', {
     heroku: process.env.HEROKU
   })
 })

@@ -1,5 +1,5 @@
 # WebRTC examples
-### Learning WebRTC  By: Dan Ristic
+### Slightly modified examples from Learning WebRTC  By: Dan Ristic
 
 ```
 (requires Node.js)
