@@ -1,5 +1,5 @@
-var name,
-    connectedUser;
+var name
+let connectedUser;
 
 var connection = new WebSocket('ws://localhost:8888');
 
@@ -47,15 +47,16 @@ function send(message) {
   connection.send(JSON.stringify(message));
 };
 
-var loginPage = document.querySelector('#login-page'),
-    usernameInput = document.querySelector('#username'),
-    loginButton = document.querySelector('#login'),
-    callPage = document.querySelector('#call-page'),
-    theirUsernameInput = document.querySelector('#their-username'),
-    callButton = document.querySelector('#call'),
-    sendButton = document.querySelector('#send'),
-    messageInput = document.querySelector('#message'),
-    hangUpButton = document.querySelector('#hang-up');
+let loginPage = document.querySelector('#login-page')
+let usernameInput = document.querySelector('#username')
+let loginButton = document.querySelector('#login')
+let callPage = document.querySelector('#call-page')
+let theirUsernameInput = document.querySelector('#their-username')
+let callButton = document.querySelector('#call')
+let sendButton = document.querySelector('#send')
+let messageInput = document.querySelector('#message')
+let hangUpButton = document.querySelector('#hang-up')
+let received = document.querySelector('#received')
 
 callPage.style.display = "none";
 
@@ -83,9 +84,11 @@ function onLogin(success) {
   }
 };
 
-var yourVideo = document.querySelector('#yours'),
-    theirVideo = document.querySelector('#theirs'),
-    yourConnection, connectedUser, stream, dataChannel;
+var yourVideo = document.querySelector('#yours')
+let theirVideo = document.querySelector('#theirs')
+let yourConnection
+let stream
+let dataChannel;
 
 function startConnection() {
   if (hasUserMedia()) {

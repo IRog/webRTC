@@ -1,16 +1,16 @@
 //TODO: show file name and correct % on the reciever. Name the file properly on download
 
-var name,
-connectedUser;
+var username
+let connectedPerson;
 
-var connection = new WebSocket('ws://localhost:8888');
+var socket = new WebSocket('ws://localhost:8888');
 
-connection.onopen = function () {
+socket.onopen = function () {
   console.log("Connected");
 };
 
 // Handle all messages through this callback
-connection.onmessage = function (message) {
+socket.onmessage = function (message) {
   console.log("Got message", message.data);
 
   var data = JSON.parse(message.data);
@@ -36,40 +36,40 @@ connection.onmessage = function (message) {
   }
 };
 
-connection.onerror = function (err) {
+socket.onerror = function (err) {
   console.log("Got error", err);
 };
 
 // Alias for sending messages in JSON format
 function send(message) {
-  if (connectedUser) {
-    message.name = connectedUser;
+  if (connectedPerson) {
+    message.name = connectedPerson;
   }
 
-  connection.send(JSON.stringify(message));
+  socket.send(JSON.stringify(message));
 };
 
-var loginPage = document.querySelector('#login-page'),
-  usernameInput = document.querySelector('#username'),
-  loginButton = document.querySelector('#login'),
-  theirUsernameInput = document.querySelector('#their-username'),
-  connectButton = document.querySelector('#connect'),
-  sharePage = document.querySelector('#share-page'),
-  sendButton = document.querySelector('#send'),
-  readyText = document.querySelector('#ready'),
-  statusText = document.querySelector('#status');
+let loginPageElem = document.querySelector('#login-page')
+let usernameInputElem = document.querySelector('#username')
+let loginButtonElem = document.querySelector('#login')
+let theirUsernameInputElem = document.querySelector('#their-username')
+let connectButton = document.querySelector('#connect')
+let sharePage = document.querySelector('#share-page')
+let sendButtonElem = document.querySelector('#send')
+let readyText = document.querySelector('#ready')
+let statusText = document.querySelector('#status')
 
 sharePage.style.display = "none";
 readyText.style.display = "none";
 
 // Login when the user clicks the button
-loginButton.addEventListener("click", function (event) {
-  name = usernameInput.value;
+loginButtonElem.addEventListener("click", function (event) {
+  username = usernameInputElem.value;
 
-  if (name.length > 0) {
+  if (username.length > 0) {
     send({
       type: "login",
-      name: name
+      name: username
     });
   }
 });
@@ -78,7 +78,7 @@ function onLogin(success) {
   if (success === false) {
     alert("Login unsuccessful, please try a different name.");
   } else {
-    loginPage.style.display = "none";
+    loginPageElem.style.display = "none";
     sharePage.style.display = "block";
 
     // Get the plumbing ready for a call
@@ -86,9 +86,11 @@ function onLogin(success) {
   }
 };
 
-var yourConnection, connectedUser, dataChannel, currentFile, currentFileSize, currentFileMeta;
-var currentFile = [],
-    currentFileMeta;
+let thisConnection 
+let dataChan
+let currentFileSize
+let currentFile
+let currentFileMeta;
 
 function startConnection() {
   if (hasRTCPeerConnection()) {
@@ -102,10 +104,10 @@ function setupPeerConnection() {
   var configuration = {
     "iceServers": [{ "url": "stun:stun.1.google.com:19302 " }]
   };
-  yourConnection = new RTCPeerConnection(configuration, {optional: []});
+  thisConnection = new RTCPeerConnection(configuration, {optional: []});
 
   // Setup ice handling
-  yourConnection.onicecandidate = function (event) {
+  thisConnection.onicecandidate = function (event) {
     if (event.candidate) {
       send({
         type: "candidate",
@@ -124,14 +126,14 @@ function openDataChannel() {
     negotiated: true,
     id: "myChannel"
   };
-  dataChannel = yourConnection.createDataChannel("myLabel", dataChannelOptions);
+  dataChan = thisConnection.createDataChannel("myLabel", dataChannelOptions);
 
-  dataChannel.onerror = function (error) {
+  dataChan.onerror = function (error) {
     console.log("Data Channel Error:", error);
   };
 
   // Add this to the openDataChannel function
-  dataChannel.onmessage = function (event) {
+  dataChan.onmessage = function (event) {
     try {
       var message = JSON.parse(event.data);
       switch (message.type) {
@@ -153,11 +155,11 @@ function openDataChannel() {
     }
   };
 
-  dataChannel.onopen = function () {
+  dataChan.onopen = function () {
     readyText.style.display = "inline-block";
   };
 
-  dataChannel.onclose = function () {
+  dataChan.onclose = function () {
     readyText.style.display = "none";
   };
 }
@@ -179,7 +181,7 @@ function hasFileApi() {
 }
 
 connectButton.addEventListener("click", function () {
-  var theirUsername = theirUsernameInput.value;
+  var theirUsername = theirUsernameInputElem.value;
 
   if (theirUsername.length > 0) {
     startPeerConnection(theirUsername);
@@ -187,26 +189,26 @@ connectButton.addEventListener("click", function () {
 });
 
 function startPeerConnection(user) {
-  connectedUser = user;
+  connectedPerson = user;
 
   // Begin the offer
-  yourConnection.createOffer(function (offer) {
+  thisConnection.createOffer(function (offer) {
     send({
       type: "offer",
       offer: offer
     });
-    yourConnection.setLocalDescription(offer);
+    thisConnection.setLocalDescription(offer);
   }, function (error) {
     alert("An error has occurred.");
   });
 };
 
 function onOffer(offer, name) {
-  connectedUser = name;
-  yourConnection.setRemoteDescription(new RTCSessionDescription(offer));
+  connectedPerson = name;
+  thisConnection.setRemoteDescription(new RTCSessionDescription(offer));
 
-  yourConnection.createAnswer(function (answer) {
-    yourConnection.setLocalDescription(answer);
+  thisConnection.createAnswer(function (answer) {
+    thisConnection.setLocalDescription(answer);
 
     send({
       type: "answer",
@@ -218,25 +220,25 @@ function onOffer(offer, name) {
 };
 
 function onAnswer(answer) {
-  yourConnection.setRemoteDescription(new RTCSessionDescription(answer));
+  thisConnection.setRemoteDescription(new RTCSessionDescription(answer));
 };
 
 function onCandidate(candidate) {
-  yourConnection.addIceCandidate(new RTCIceCandidate(candidate));
+  thisConnection.addIceCandidate(new RTCIceCandidate(candidate));
 };
 
 function onLeave() {
-  connectedUser = null;
-  yourConnection.close();
-  yourConnection.onicecandidate = null;
+  connectedPerson = null;
+  thisConnection.close();
+  thisConnection.onicecandidate = null;
   setupPeerConnection();
 };
 
-sendButton.addEventListener("click", function (event) {
+sendButtonElem.addEventListener("click", function (event) {
   var files = document.querySelector('#files').files;
 
   if (files.length > 0) {
-    dataChannel.send(JSON.stringify({
+    dataChan.send(JSON.stringify({
       type: "start",
       data: files[0]
     }));
@@ -299,11 +301,11 @@ function sendFile(file) {
         var percentage = Math.floor((end / file.size) * 100);
         statusText.innerHTML = "Sending... " + percentage + "%";
 
-        dataChannel.send(arrayBufferToBase64(buffer.slice(start, end)));
+        dataChan.send(arrayBufferToBase64(buffer.slice(start, end)));
 
         // If this is the last chunk send our end message, otherwise keep sending
         if (last === true) {
-          dataChannel.send(JSON.stringify({
+          dataChan.send(JSON.stringify({
             type: "end"
           }));
         } else {

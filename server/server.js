@@ -16,7 +16,3 @@ return app.listen(port, () => {
   app.emit('started')
   console.log('Web app listening at: localhost:' + port)
 })
-
-
-//socket stuff
-

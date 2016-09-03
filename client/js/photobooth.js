@@ -1,4 +1,4 @@
-function hasUserMedia() {
+function hasSupportedUserMedia() {
   return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia)
 }
 
@@ -6,7 +6,7 @@ let streaming = false
 let video = document.querySelector('video')
 let canvas = document.querySelector('canvas')
 
-if (hasUserMedia()) {
+if (hasSupportedUserMedia()) {
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
 
   navigator.getUserMedia({
