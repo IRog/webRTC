@@ -12,29 +12,29 @@ const source = require('vinyl-source-stream')
 const transform = require('vinyl-transform')
 
 function handleError(err) {
-  console.log(err.toString());
-  this.emit('end');
+  console.log(err.toString())
+  this.emit('end')
 }
 
-gulp.task('browserify', function(done) {
-  glob('./dist/js/**.js', function(err, files) {
+gulp.task('browserify', done => {
+  glob('./dist/js/**.js', (err, files) => {
     if(err) done(err);
 
-    const tasks = files.map(function(entry) {
-        return browserify({ entries: [entry] })
-            .bundle()
-            .pipe(source(entry))
-            .on("error", handleError)
-            .pipe(rename({
-                extname: '.bundle.js'
-            }))
-            .pipe(gulp.dest(''))
-        })
+    const tasks = files.map(entry => {
+      return browserify({ entries: [entry] })
+          .bundle()
+          .pipe(source(entry))
+          .on('error', handleError)
+          .pipe(rename({
+              extname: '.bundle.js'
+          }))
+          .pipe(gulp.dest(''))
+      })
     es.merge(tasks).on('end', done)
   })
 })
 
-gulp.task('js-compile', function () {
+gulp.task('js-compile', () => {
   return gulp.src('./dist/js/**/*.bundle.js', {base: './'})
     .pipe(closureCompiler({
       compilation_level: 'SIMPLE',
@@ -43,7 +43,7 @@ gulp.task('js-compile', function () {
       output_wrapper: '(function(){\n%output%\n}).call(this)',
       js_output_file: 'build.min.js'
     }))
-    .on("error", handleError)
+    .on('error', handleError)
     .pipe(gulp.dest('./dist/build/js'))
 })
 
@@ -57,7 +57,7 @@ gulp.task('babel', () =>
       "transform-class-properties"
     ]
   }))
-  .on("error", handleError)
+  .on('error', handleError)
   .pipe(gulp.dest('./dist/js'))
 )
 
@@ -69,13 +69,13 @@ gulp.task('reload-pug', input => {
  return gulp.src('./client/views/pages/*.pug').pipe(livereload())
 })
 
-gulp.task('clean', function () {
+gulp.task('clean', () => {
   return del([
     './dist/js/**/*.js',
   ]);
 })
 
-gulp.task('js-pipeline', function(callback) {
+gulp.task('js-pipeline', callback => {
   runSequence('clean', 'babel', 'browserify', 'reload-js', callback);
 })
 
