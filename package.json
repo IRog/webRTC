@@ -5,7 +5,8 @@
   "scripts": {
     "start": "concurrently 'nodemon ./server/server.js' 'npm run watch'",
     "watch": "gulp",
-    "build": "gulp babel && gulp js-compile"
+    "build": "gulp js-pipeline && gulp js-compile",
+    "prod": "NODE_ENV=production node ./server/server.js"
   },
   "dependencies": {
     "body-parser": "^1.9.0",

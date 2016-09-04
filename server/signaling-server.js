@@ -3,6 +3,7 @@ module.exports = () => {
   const wss = new WebSocketServer({ port: 8888 })
   let users = {}
 
+//expand on this?
   function sendTo(conn, message) {
     conn.send(JSON.stringify(message))
   }

@@ -28,14 +28,14 @@ gulp.task('browserify', function(done) {
             .pipe(rename({
                 extname: '.bundle.js'
             }))
-            .pipe(gulp.dest('./dist/bundle'))
+            .pipe(gulp.dest(''))
         })
     es.merge(tasks).on('end', done)
   })
 })
 
 gulp.task('js-compile', function () {
-  return gulp.src('./dist/js/**/*.js', {base: './'})
+  return gulp.src('./dist/js/**/*.bundle.js', {base: './'})
     .pipe(closureCompiler({
       compilation_level: 'SIMPLE',
       language_in: 'ECMASCRIPT6',
@@ -71,9 +71,7 @@ gulp.task('reload-pug', input => {
 
 gulp.task('clean', function () {
   return del([
-    './dist/bundle/dist/**/*.js',
     './dist/js/**/*.js',
-    './dist/build/js/*.js'
   ]);
 })
 
