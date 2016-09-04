@@ -2,7 +2,7 @@ module.exports = app => {
   const prod = process.env.NODE_ENV === 'production'
 
   app.get('/', (req, res, next) => {
-    res.render('../pages/index', {prod: process.env.NODE_ENV})
+    res.render('../pages/index', {})
   })
 
   app.get('/file-share', (req, res, next) => {
