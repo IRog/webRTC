@@ -1,52 +1,53 @@
 //TODO: show file name and correct % on the reciever. Name the file properly on download
-var username
-let connectedPerson;
 
-var socket = new WebSocket('ws://localhost:8888');
+let username
+let connectedPerson
 
-socket.onopen = function () {
-  console.log("Connected");
-};
+const socket = new WebSocket('ws://localhost:8888')
+
+socket.onopen = () => {
+  console.log("Connected")
+}
 
 // Handle all messages through this callback
-socket.onmessage = function (message) {
-  console.log("Got message", message.data);
+socket.onmessage = message => {
+  console.log("Got message", message.data)
 
-  var data = JSON.parse(message.data);
+  const data = JSON.parse(message.data)
 
   switch(data.type) {
     case "login":
-      onLogin(data.success);
-      break;
+      onLogin(data.success)
+      break
     case "offer":
-      onOffer(data.offer, data.name);
-      break;
+      onOffer(data.offer, data.name)
+      break
     case "answer":
-      onAnswer(data.answer);
-      break;
+      onAnswer(data.answer)
+      break
     case "candidate":
-      onCandidate(data.candidate);
-      break;
+      onCandidate(data.candidate)
+      break
     case "leave":
-      onLeave();
-      break;
+      onLeave()
+      break
     default:
-      break;
+      break
   }
-};
+}
 
-socket.onerror = function (err) {
-  console.log("Got error", err);
-};
+socket.onerror = err => {
+  console.log("Got error", err)
+}
 
 // Alias for sending messages in JSON format
 function send(message) {
   if (connectedPerson) {
-    message.name = connectedPerson;
+    message.name = connectedPerson
   }
 
-  socket.send(JSON.stringify(message));
-};
+  socket.send(JSON.stringify(message))
+}
 
 let loginPageElem = document.querySelector('#login-page')
 let usernameInputElem = document.querySelector('#username')
@@ -58,52 +59,52 @@ let sendButtonElem = document.querySelector('#send')
 let readyText = document.querySelector('#ready')
 let statusText = document.querySelector('#status')
 
-sharePage.style.display = "none";
-readyText.style.display = "none";
+sharePage.style.display = "none"
+readyText.style.display = "none"
 
 // Login when the user clicks the button
-loginButtonElem.addEventListener("click", function (event) {
-  username = usernameInputElem.value;
+loginButtonElem.addEventListener("click", event => {
+  username = usernameInputElem.value
 
   if (username.length > 0) {
     send({
       type: "login",
       name: username
-    });
+    })
   }
-});
+})
 
 function onLogin(success) {
   if (success === false) {
-    alert("Login unsuccessful, please try a different name.");
+    alert("Login unsuccessful, please try a different name.")
   } else {
-    loginPageElem.style.display = "none";
-    sharePage.style.display = "block";
+    loginPageElem.style.display = "none"
+    sharePage.style.display = "block"
 
     // Get the plumbing ready for a call
-    startConnection();
+    startConnection()
   }
-};
+}
 
 let thisConnection 
 let dataChan
 let currentFileSize
 let currentFile
-let currentFileMeta;
+let currentFileMeta
 
 function startConnection() {
   if (hasRTCPeerConnection()) {
-    setupPeerConnection();
+    setupPeerConnection()
   } else {
-    alert("Sorry, your browser does not support WebRTC.");
+    alert("Sorry, your browser does not support WebRTC.")
   }
 }
 
 function setupPeerConnection() {
-  var configuration = {
+  const configuration = {
     "iceServers": [{ "url": "stun:stun.1.google.com:19302 " }]
-  };
-  thisConnection = new RTCPeerConnection(configuration, {optional: []});
+  }
+  thisConnection = new RTCPeerConnection(configuration, {optional: []})
 
   // Setup ice handling
   thisConnection.onicecandidate = function (event) {
@@ -111,11 +112,11 @@ function setupPeerConnection() {
       send({
         type: "candidate",
         candidate: event.candidate
-      });
+      })
     }
-  };
+  }
 
-  openDataChannel();
+  openDataChannel()
 }
 
 function openDataChannel() {
@@ -124,210 +125,210 @@ function openDataChannel() {
     reliable: true,
     negotiated: true,
     id: "myChannel"
-  };
-  dataChan = thisConnection.createDataChannel("myLabel", dataChannelOptions);
+  }
+  dataChan = thisConnection.createDataChannel("myLabel", dataChannelOptions)
 
-  dataChan.onerror = function (error) {
-    console.log("Data Channel Error:", error);
-  };
+  dataChan.onerror = error => {
+    console.log("Data Channel Error:", error)
+  }
 
   // Add this to the openDataChannel function
-  dataChan.onmessage = function (event) {
+  dataChan.onmessage = event => {
     try {
-      var message = JSON.parse(event.data);
+      var message = JSON.parse(event.data)
       switch (message.type) {
         case "start":
-          currentFile = [];
-          currentFileMeta = message.data;
-          break;
+          currentFile = []
+          currentFileMeta = message.data
+          break
         case "end":
-          saveFile(currentFileMeta, currentFile);
-          break;
+          saveFile(currentFileMeta, currentFile)
+          break
       }
     } catch (e) {
       // Assume this is file content
-      currentFile.push(window.atob(event.data));
-      currentFileSize += currentFile[currentFile.length - 1].length;
+      currentFile.push(window.atob(event.data))
+      currentFileSize += currentFile[currentFile.length - 1].length
 
-      var percentage = Math.floor((currentFileSize / currentFileMeta.size) * 100);
-      statusText.innerHTML = "Receiving... " + percentage + "%";
+      const percentage = Math.floor((currentFileSize / currentFileMeta.size) * 100)
+      statusText.innerHTML = "Receiving... " + percentage + "%"
     }
-  };
+  }
 
-  dataChan.onopen = function () {
-    readyText.style.display = "inline-block";
-  };
+  dataChan.onopen = () => {
+    readyText.style.display = "inline-block"
+  }
 
-  dataChan.onclose = function () {
-    readyText.style.display = "none";
-  };
+  dataChan.onclose = () => {
+    readyText.style.display = "none"
+  }
 }
 
 function hasUserMedia() {
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-  return !!navigator.getUserMedia;
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
+  return !!navigator.getUserMedia
 }
 
 function hasRTCPeerConnection() {
-  window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-  window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription;
-  window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate;
-  return !!window.RTCPeerConnection;
+  window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection
+  window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription
+  window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate
+  return !!window.RTCPeerConnection
 }
 
 function hasFileApi() {
-  return window.File && window.FileReader && window.FileList && window.Blob;
+  return window.File && window.FileReader && window.FileList && window.Blob
 }
 
-connectButton.addEventListener("click", function () {
-  var theirUsername = theirUsernameInputElem.value;
+connectButton.addEventListener("click", () => {
+  var theirUsername = theirUsernameInputElem.value
 
   if (theirUsername.length > 0) {
-    startPeerConnection(theirUsername);
+    startPeerConnection(theirUsername)
   }
-});
+})
 
 function startPeerConnection(user) {
-  connectedPerson = user;
+  connectedPerson = user
 
   // Begin the offer
-  thisConnection.createOffer(function (offer) {
+  thisConnection.createOffer(offer => {
     send({
       type: "offer",
       offer: offer
-    });
-    thisConnection.setLocalDescription(offer);
-  }, function (error) {
-    alert("An error has occurred.");
-  });
-};
+    })
+    thisConnection.setLocalDescription(offer)
+  }, error => {
+    alert("An error has occurred.")
+  })
+}
 
 function onOffer(offer, name) {
-  connectedPerson = name;
-  thisConnection.setRemoteDescription(new RTCSessionDescription(offer));
+  connectedPerson = name
+  thisConnection.setRemoteDescription(new RTCSessionDescription(offer))
 
-  thisConnection.createAnswer(function (answer) {
-    thisConnection.setLocalDescription(answer);
+  thisConnection.createAnswer(answer => {
+    thisConnection.setLocalDescription(answer)
 
     send({
       type: "answer",
       answer: answer
-    });
-  }, function (error) {
-    alert("An error has occurred");
-  });
-};
+    })
+  }, error => {
+    alert("An error has occurred")
+  })
+}
 
 function onAnswer(answer) {
-  thisConnection.setRemoteDescription(new RTCSessionDescription(answer));
-};
+  thisConnection.setRemoteDescription(new RTCSessionDescription(answer))
+}
 
 function onCandidate(candidate) {
-  thisConnection.addIceCandidate(new RTCIceCandidate(candidate));
-};
+  thisConnection.addIceCandidate(new RTCIceCandidate(candidate))
+}
 
 function onLeave() {
-  connectedPerson = null;
-  thisConnection.close();
-  thisConnection.onicecandidate = null;
-  setupPeerConnection();
-};
+  connectedPerson = null
+  thisConnection.close()
+  thisConnection.onicecandidate = null
+  setupPeerConnection()
+}
 
-sendButtonElem.addEventListener("click", function (event) {
-  var files = document.querySelector('#files').files;
+sendButtonElem.addEventListener("click", event => {
+  const files = document.querySelector('#files').files
 
   if (files.length > 0) {
     dataChan.send(JSON.stringify({
       type: "start",
       data: files[0]
-    }));
+    }))
 
-    sendFile(files[0]);
+    sendFile(files[0])
   }
-});
+})
 
 function arrayBufferToBase64(buffer) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode( bytes[ i ] );
+    let binary = ''
+    const bytes = new Uint8Array( buffer )
+    const len = bytes.byteLength
+    for (let i = 0 i < len i++) {
+        binary += String.fromCharCode( bytes[ i ] )
     }
-    return btoa(binary);
+    return btoa(binary)
 }
 
 function base64ToBlob(b64Data, contentType) {
-    contentType = contentType || '';
+    contentType = contentType || ''
 
-    var byteArrays = [], byteNumbers, slice;
+    let byteArrays = [], byteNumbers, slice
 
-    for (var i = 0; i < b64Data.length; i++) {
-      slice = b64Data[i];
+    for (let i = 0 i < b64Data.length i++) {
+      slice = b64Data[i]
 
-      byteNumbers = new Array(slice.length);
-      for (var n = 0; n < slice.length; n++) {
-          byteNumbers[n] = slice.charCodeAt(n);
+      byteNumbers = new Array(slice.length)
+      for (let n = 0 n < slice.length n++) {
+          byteNumbers[n] = slice.charCodeAt(n)
       }
 
-      var byteArray = new Uint8Array(byteNumbers);
+      const byteArray = new Uint8Array(byteNumbers)
 
-      byteArrays.push(byteArray);
+      byteArrays.push(byteArray)
     }
 
-    var blob = new Blob(byteArrays, {type: contentType});
-    return blob;
+    const blob = new Blob(byteArrays, {type: contentType})
+    return blob
 }
 
-var CHUNK_MAX = 16000;
+const CHUNK_MAX = 16000
 function sendFile(file) {
-  var reader = new FileReader();
+  let reader = new FileReader()
 
-  reader.onloadend = function(evt) {
+  reader.onloadend = evt => {
     if (evt.target.readyState == FileReader.DONE) {
-      var buffer = reader.result,
-          start = 0,
-          end = 0,
-          last = false;
+      const buffer = reader.result
+      const start = 0,
+      const end = 0,
+      let last = false
 
       function sendChunk() {
-        end = start + CHUNK_MAX;
+        end = start + CHUNK_MAX
 
         if (end > file.size) {
-           end = file.size;
-           last = true;
+           end = file.size
+           last = true
         } // Code that already exists
 
-        var percentage = Math.floor((end / file.size) * 100);
-        statusText.innerHTML = "Sending... " + percentage + "%";
+        const percentage = Math.floor((end / file.size) * 100)
+        statusText.innerHTML = "Sending... " + percentage + "%"
 
-        dataChan.send(arrayBufferToBase64(buffer.slice(start, end)));
+        dataChan.send(arrayBufferToBase64(buffer.slice(start, end)))
 
         // If this is the last chunk send our end message, otherwise keep sending
         if (last === true) {
           dataChan.send(JSON.stringify({
             type: "end"
-          }));
+          }))
         } else {
-          start = end;
+          start = end
           // Throttle the sending to avoid flooding
-          setTimeout(function () {
-            sendChunk();
-          }, 100);
+          setTimeout( () => {
+            sendChunk()
+          }, 100)
         }
       }
 
-      sendChunk();
+      sendChunk()
     }
-  };
+  }
 
-  reader.readAsArrayBuffer(file);
+  reader.readAsArrayBuffer(file)
 }
 
 function saveFile(meta, data) {
-  var blob = base64ToBlob(data, meta.type);
+  const blob = base64ToBlob(data, meta.type)
 
-  var link = document.createElement('a');
-  link.href = window.URL.createObjectURL(blob);
-  link.download = meta.name;
-  link.click();
+  let link = document.createElement('a')
+  link.href = window.URL.createObjectURL(blob)
+  link.download = meta.name
+  link.click()
 }
