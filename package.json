@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server/server.js",
   "scripts": {
-    "start": "concurrently 'nodemon server/server.js' 'npm run watch'",
+    "start": "concurrently 'nodemon ./server/server.js' 'npm run watch'",
     "watch": "gulp",
     "build": "gulp babel && gulp js-compile"
   },
@@ -22,13 +22,19 @@
   "license": "MIT",
   "devDependencies": {
     "babel-plugin-transform-class-properties": "^6.11.5",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-preset-es2015": "^6.14.0",
+    "browserify": "^13.1.0",
     "concurrently": "^2.2.0",
+    "glob": "^7.0.6",
     "google-closure-compiler": "^20160822.1.0",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.2",
     "gulp-livereload": "^3.8.1",
-    "nodemon": "^1.10.2"
+    "nodemon": "^1.10.2",
+    "run-sequence": "^1.2.2",
+    "vinyl-source-stream": "^1.1.0",
+    "vinyl-transform": "^1.0.0"
   }
 }

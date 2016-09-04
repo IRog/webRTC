@@ -42,6 +42,9 @@ html(lang='en')
         color: black;
         overflow: scroll;
       }
+      #call-page {
+        display: none;
+      }
   body
     #login-page.page
       h2 Login As
@@ -56,4 +59,4 @@ html(lang='en')
       input#message(type='text')
       button#send Send
       #received
-    script(src='../../js/client.js')
+    script(src='../../bundle/dist/js/chatClient.bundle.js')

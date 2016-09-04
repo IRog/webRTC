@@ -1,3 +1,5 @@
+import websocketConfig from './websocket'
+
 var name
 let connectedUser;
 

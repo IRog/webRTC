@@ -19,8 +19,8 @@ module.exports = app => {
   // -- Mount static files here--
   // All static middleware should be registered at the end, as all requests
   // passing the static middleware are hitting the file system
-  app.use(express.static(path.resolve(__dirname, '../../client')))
-  app.use(favicon(path.resolve(__dirname, '../../client/favicon/favicon-Cheshire-Cat-by-ichiibutt.ico')))
+  app.use(express.static(path.resolve(__dirname, '../../dist')))
+  app.use(favicon(path.resolve(__dirname, '../../dist/favicon/favicon-Cheshire-Cat-by-ichiibutt.ico')))
 
   // compress all requests
   app.use(compression())
