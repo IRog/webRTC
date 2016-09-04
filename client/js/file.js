@@ -1,8 +1,5 @@
-//TODO: show file name and correct % on the reciever. Name the file properly on download
-
 let username
 let connectedPerson
-
 const socket = new WebSocket('ws://localhost:8888')
 
 socket.onopen = () => {
@@ -88,7 +85,7 @@ function onLogin(success) {
 
 let thisConnection 
 let dataChan
-let currentFileSize
+let currentFileSize = 0
 let currentFile
 let currentFileMeta
 
@@ -140,6 +137,7 @@ function openDataChannel() {
         case "start":
           currentFile = []
           currentFileMeta = message.data
+          document.querySelector('#file-name').innerHTML = message.name
           break
         case "end":
           saveFile(currentFileMeta, currentFile)
@@ -148,9 +146,10 @@ function openDataChannel() {
     } catch (e) {
       // Assume this is file content
       currentFile.push(window.atob(event.data))
-      currentFileSize += currentFile[currentFile.length - 1].length
+      const fileLength = currentFile.length - 1
+      currentFileSize += currentFile[fileLength].length
 
-      const percentage = Math.floor((currentFileSize / currentFileMeta.size) * 100)
+      const percentage = Math.floor((currentFileSize / currentFileMeta) * 100)
       statusText.innerHTML = "Receiving... " + percentage + "%"
     }
   }
@@ -240,7 +239,8 @@ sendButtonElem.addEventListener("click", event => {
   if (files.length > 0) {
     dataChan.send(JSON.stringify({
       type: "start",
-      data: files[0]
+      data: files[0].size,
+      name: files[0].name
     }))
 
     sendFile(files[0])
@@ -251,7 +251,7 @@ function arrayBufferToBase64(buffer) {
     let binary = ''
     const bytes = new Uint8Array( buffer )
     const len = bytes.byteLength
-    for (let i = 0 i < len i++) {
+    for (let i = 0; i < len; i++) {
         binary += String.fromCharCode( bytes[ i ] )
     }
     return btoa(binary)
@@ -262,11 +262,11 @@ function base64ToBlob(b64Data, contentType) {
 
     let byteArrays = [], byteNumbers, slice
 
-    for (let i = 0 i < b64Data.length i++) {
+    for (let i = 0; i < b64Data.length; i++) {
       slice = b64Data[i]
 
       byteNumbers = new Array(slice.length)
-      for (let n = 0 n < slice.length n++) {
+      for (let n = 0; n < slice.length; n++) {
           byteNumbers[n] = slice.charCodeAt(n)
       }
 
@@ -286,8 +286,8 @@ function sendFile(file) {
   reader.onloadend = evt => {
     if (evt.target.readyState == FileReader.DONE) {
       const buffer = reader.result
-      const start = 0,
-      const end = 0,
+      let start = 0
+      let end = 0
       let last = false
 
       function sendChunk() {

@@ -26,78 +26,78 @@ function send(message) {
   connection.send(JSON.stringify(message))
 }
 
-  connection.onopen = function () {
-    console.log("Connected")
+connection.onopen = function () {
+  console.log("Connected")
+}
+
+// Handle all messages through this callback
+connection.onmessage = function (message) {
+  console.log("Got message", message.data)
+
+  const data = JSON.parse(message.data)
+
+  switch(data.type) {
+    case "login":
+      onLogin(data.success)
+      break
+    case "offer":
+      onOffer(data.offer, data.name)
+      break
+    case "answer":
+      onAnswer(data.answer)
+      break
+    case "candidate":
+      onCandidate(data.candidate)
+      break
+    case "leave":
+      onLeave()
+      break
+    default:
+      break
   }
+}
 
-  // Handle all messages through this callback
-  connection.onmessage = function (message) {
-    console.log("Got message", message.data)
+connection.onerror = function (err) {
+  console.log("Got error", err)
+}
 
-    const data = JSON.parse(message.data)
+function onLogin(success) {
+  if (success === false) {
+    alert("Login unsuccessful, please try a different name.")
+  } else {
+    let callPage = document.querySelector('#call-page')
+    let loginPage = document.querySelector('#login-page')
 
-    switch(data.type) {
-      case "login":
-        onLogin(data.success)
-        break
-      case "offer":
-        onOffer(data.offer, data.name)
-        break
-      case "answer":
-        onAnswer(data.answer)
-        break
-      case "candidate":
-        onCandidate(data.candidate)
-        break
-      case "leave":
-        onLeave()
-        break
-      default:
-        break
-    }
+    loginPage.style.display = "none"
+    callPage.style.display = "block"
+    
+    // Get the plumbing ready for a call
+    startConnection(stream, dataChannel, yourConnection)
   }
+}
 
-  connection.onerror = function (err) {
-    console.log("Got error", err)
-  }
+function onOffer(offer, name) {
+  connectedUser = name
+  yourConnection.setRemoteDescription(new RTCSessionDescription(offer))
 
-  function onLogin(success) {
-    if (success === false) {
-      alert("Login unsuccessful, please try a different name.")
-    } else {
-      let callPage = document.querySelector('#call-page')
-      let loginPage = document.querySelector('#login-page')
-
-      loginPage.style.display = "none"
-      callPage.style.display = "block"
-      
-      // Get the plumbing ready for a call
-      startConnection(stream, dataChannel, yourConnection)
-    }
-  }
-
-  function onOffer(offer, name) {
-    connectedUser = name
-    yourConnection.setRemoteDescription(new RTCSessionDescription(offer))
-
-    yourConnection.createAnswer().then(function (answer) {
-      yourConnection.setLocalDescription(answer)
-      send({
-        type: "answer",
-        answer: answer
-      })
-    }, function (error) {
-      alert("An error has occurred")
+  yourConnection.createAnswer().then(function (answer) {
+    yourConnection.setLocalDescription(answer)
+    send({
+      type: "answer",
+      answer: answer
     })
-  }
+  }, function (error) {
+    alert("An error has occurred")
+  })
+}
 
-  function onAnswer(answer) {
-    yourConnection.setRemoteDescription(new RTCSessionDescription(answer))
-  }
+function onAnswer(answer) {
+  yourConnection.setRemoteDescription(new RTCSessionDescription(answer))
+}
 
-  function onCandidate(candidate) {
-    yourConnection.addIceCandidate(new RTCIceCandidate(candidate))
-  }
+function onCandidate(candidate) {
+  yourConnection.addIceCandidate(new RTCIceCandidate(candidate))
+}
 
 function startPeerConnection(user) {
   connectedUser = user
@@ -164,89 +164,90 @@ sendButton.addEventListener("click", function (event) {
   console.log(dataChannel)
 })
 
-  function hasUserMedia() {
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
-    return !!navigator.getUserMedia
-  }
+function hasUserMedia() {
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
+  return !!navigator.getUserMedia
+}
 
-  function hasRTCPeerConnection() {
-    window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection
-    window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription
-    window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate
-    return !!window.RTCPeerConnection
-  }
+function hasRTCPeerConnection() {
+  window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection
+  window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription
+  window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate
+  return !!window.RTCPeerConnection
+}
 
-  function startConnection() {
-    if (hasUserMedia()) {
-      navigator.getUserMedia({ video: true, audio: false }, function (myStream) {
-        stream = myStream
-        let yourVideo = document.querySelector('#yours')
-        yourVideo.src = window.URL.createObjectURL(stream)
+function startConnection() {
+  if (hasUserMedia()) {
+    navigator.getUserMedia({ video: true, audio: false }, function (myStream) {
+      stream = myStream
+      let yourVideo = document.querySelector('#yours')
+      yourVideo.src = window.URL.createObjectURL(stream)
 
-        if (hasRTCPeerConnection()) {
-          setupPeerConnection(stream)
-        } else {
-          alert("Sorry, your browser does not support WebRTC.")
-        }
-      }, error => {
-        console.log(error)
-      })
-    } else {
-      alert("Sorry, your browser does not support WebRTC.")
-    }
-  }
-
-  function setupPeerConnection(stream) {
-    var configuration = {
-      "iceServers": [{ "url": "stun:stun.1.google.com:19302 " }]
-    }
-    yourConnection = new RTCPeerConnection(configuration, {optional: []})
-
-    // Setup stream listening
-    yourConnection.addStream(stream)
-    yourConnection.onaddstream = e => {
-      theirVideo.src = window.URL.createObjectURL(e.stream)
-    }
-
-    // Setup ice handling
-    yourConnection.onicecandidate = event => {
-      if (event.candidate) {
-        send({
-          type: "candidate",
-          candidate: event.candidate
-        })
+      if (hasRTCPeerConnection()) {
+        setupPeerConnection(stream)
+      } else {
+        alert("Sorry, your browser does not support WebRTC.")
       }
-    }
-    openDataChannel()
+    }, error => {
+      console.log(error)
+    })
+  } else {
+    alert("Sorry, your browser does not support WebRTC.")
+  }
+}
+
+function setupPeerConnection(stream) {
+  var configuration = {
+    "iceServers": [{ "url": "stun:stun.1.google.com:19302 " }]
+  }
+  yourConnection = new RTCPeerConnection(configuration, {optional: []})
+
+  // Setup stream listening
+  yourConnection.addStream(stream)
+  yourConnection.onaddstream = e => {
+    let theirVideo = document.querySelector('#theirs')
+    theirVideo.src = window.URL.createObjectURL(e.stream)
   }
 
-  function openDataChannel() {
-    const dataChannelOptions = {
-      reliable: true,
-      negotiated: true,
-      id: "myChannel"
+  // Setup ice handling
+  yourConnection.onicecandidate = event => {
+    if (event.candidate) {
+      send({
+        type: "candidate",
+        candidate: event.candidate
+      })
     }
-    dataChannel = yourConnection.createDataChannel("myLabel", dataChannelOptions)
+  }
+  openDataChannel()
+}
 
+function openDataChannel() {
+  const dataChannelOptions = {
+    reliable: true,
+    negotiated: true,
+    id: "myChannel"
+  }
+  dataChannel = yourConnection.createDataChannel("myLabel", dataChannelOptions)
+
+  console.log(dataChannel)
+  dataChannel.onerror = function (error) {
+    console.log("Data Channel Error:", error)
+  }
+
+  dataChannel.onmessage = function (event) {
+    console.log("Got Data Channel Message:", event.data)
+    let received = document.querySelector('#received')
+    
+    received.innerHTML += "recv: " + event.data + "<br />"
+    received.scrollTop = received.scrollHeight
+  }
+
+  dataChannel.onopen = function () {
     console.log(dataChannel)
-    dataChannel.onerror = function (error) {
-      console.log("Data Channel Error:", error)
-    }
-
-    dataChannel.onmessage = function (event) {
-      console.log("Got Data Channel Message:", event.data)
-      let received = document.querySelector('#received')
-      
-      received.innerHTML += "recv: " + event.data + "<br />"
-      received.scrollTop = received.scrollHeight
-    }
-
-    dataChannel.onopen = function () {
-      console.log(dataChannel)
-      dataChannel.send(name + " has connected.")
-    }
-
-    dataChannel.onclose = function () {
-      console.log("The Data Channel is Closed")
-    }
+    dataChannel.send(name + " has connected.")
   }
+
+  dataChannel.onclose = function () {
+    console.log("The Data Channel is Closed")
+  }
+}

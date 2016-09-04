@@ -1,6 +1,7 @@
 const babel = require('gulp-babel')
 const browserify = require('browserify')
 const closureCompiler = require('google-closure-compiler').gulp()
+const del = require('del')
 const es = require('event-stream')
 const glob = require('glob')
 const gulp = require('gulp')
@@ -10,6 +11,11 @@ const runSequence = require('run-sequence')
 const source = require('vinyl-source-stream')
 const transform = require('vinyl-transform')
 
+function handleError(err) {
+  console.log(err.toString());
+  this.emit('end');
+}
+
 gulp.task('browserify', function(done) {
   glob('./dist/js/**.js', function(err, files) {
     if(err) done(err);
@@ -18,6 +24,7 @@ gulp.task('browserify', function(done) {
         return browserify({ entries: [entry] })
             .bundle()
             .pipe(source(entry))
+            .on("error", handleError)
             .pipe(rename({
                 extname: '.bundle.js'
             }))
@@ -36,6 +43,7 @@ gulp.task('js-compile', function () {
       output_wrapper: '(function(){\n%output%\n}).call(this)',
       js_output_file: 'build.min.js'
     }))
+    .on("error", handleError)
     .pipe(gulp.dest('./dist/build/js'))
 })
 
@@ -49,6 +57,7 @@ gulp.task('babel', () =>
       "transform-class-properties"
     ]
   }))
+  .on("error", handleError)
   .pipe(gulp.dest('./dist/js'))
 )
 
@@ -60,8 +69,16 @@ gulp.task('reload-pug', input => {
  return gulp.src('./client/views/pages/*.pug').pipe(livereload())
 })
 
+gulp.task('clean', function () {
+  return del([
+    './dist/bundle/dist/**/*.js',
+    './dist/js/**/*.js',
+    './dist/build/js/*.js'
+  ]);
+})
+
 gulp.task('js-pipeline', function(callback) {
-  runSequence('babel', 'browserify', 'reload-js', callback);
+  runSequence('clean', 'babel', 'browserify', 'reload-js', callback);
 })
 
 gulp.task('watch', () => {

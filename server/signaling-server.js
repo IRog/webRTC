@@ -107,6 +107,7 @@ module.exports = () => {
           console.log("Disconnecting user from", connection.otherName)
           let conn = users[connection.otherName]
           conn.otherName = null
+          //TODO error handle, here
 
           if (conn != null) {
             sendTo(conn, {
