@@ -133,7 +133,7 @@ export default () => {
     // Add this to the openDataChannel function
     dataChan.onmessage = event => {
       try {
-        var message = JSON.parse(event.data)
+        const message = JSON.parse(event.data)
         switch (message.type) {
           case "start":
             currentFile = []
@@ -181,7 +181,7 @@ export default () => {
   }
 
   connectButton.addEventListener("click", () => {
-    var theirUsername = theirUsernameInputElem.value
+    const theirUsername = theirUsernameInputElem.value
 
     if (theirUsername.length > 0) {
       startPeerConnection(theirUsername)

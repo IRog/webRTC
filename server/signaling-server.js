@@ -39,6 +39,8 @@ module.exports = () => {
           }
 
           break
+//make an offer answer candidate function with pass in type and conditionals
+//make a login function with 1 input
         case "offer":
           console.log("Sending offer to "+ data.name)
           var conn = users[data.name]
@@ -111,9 +113,7 @@ module.exports = () => {
           //TODO error handle, here
 
           if (conn != null) {
-            sendTo(conn, {
-              type: "leave"
-            })
+            sendTo(conn, {type: "leave"})
           }
         }
       }

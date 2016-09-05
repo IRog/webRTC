@@ -43,7 +43,7 @@ export default () => {
       context.drawImage(video, 0, 0)
 
       currentFilter++
-      if(currentFilter > filters.length - 1) currentFilter = 0
+      if (currentFilter > filters.length - 1) currentFilter = 0
       canvas.className = filters[currentFilter]
     }
   })
