@@ -4,6 +4,7 @@
 ```
 (requires Node.js)
 $ npm install
+$ npm run build
 $ node start
 ```
 - For live reload:
